@@ -16,6 +16,9 @@ mongoose
 app.use(express.json());
 app.use("/", indexRouter);
 
+const routes = require("./routes");
+app.use(routes);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
