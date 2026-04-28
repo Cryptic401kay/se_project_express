@@ -1,5 +1,9 @@
 const ClothingItem = require("../models/clothingItem");
-const { INTERNAL_SERVER_ERROR } = require("../utils/error");
+const {
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  BAD_REQUEST,
+} = require("../utils/error");
 
 const createItem = (req, res) => {
   console.log(req);
@@ -14,9 +18,12 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res
+      if (err.name === "ValidationError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ error: "A server error occurred" });
+        .send({ message: "An error occurred on the server" });
     });
 };
 
@@ -25,7 +32,7 @@ const getItems = (req, res) => {
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       console.error(err);
-      res
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     });
@@ -39,7 +46,13 @@ const deleteItem = (req, res) => {
     .then(() => res.status(200).send({ message: "Item deleted successfully" }))
     .catch((err) => {
       console.error(err);
-      res
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: "Invalid data" });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     });
