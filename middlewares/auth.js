@@ -1,11 +1,24 @@
-const { JWT_SECRET } = require("../utils/config");
-const jwt = require("jsonwebtoken");
+const { UNAUTHORIZED } = require("../utils/error");
 
-const token = authorization.replace("Bearer ", "");
+const authMiddleware = (req, res, next) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
 
-payload = jwt.verify(token, JWT_SECRET);
+  if (!token) {
+    return res
+      .status(UNAUTHORIZED)
+      .send({ message: "Authorization token missing" });
+  }
 
-req.user = payload;
-next();
+  isJWT.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.error(err);
+      return res
+        .status(UNAUTHORIZED)
+        .send({ message: "Invalid authorization token" });
+    }
+    req.user = decoded;
+    next();
+  });
+};
 
-module.exports = token;
+module.exports = authMiddleware;

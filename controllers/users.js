@@ -1,7 +1,10 @@
-import isJWT from "jsonwebtoken";
-import { JWT_SECRET } from "../utils/config";
+const isJWT = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
+
+import auth from "../middlewares/auth";
 
 const User = require("../models/user");
+
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -40,47 +43,7 @@ const login = (req, res) => {
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     });
-
-  User.findOne({ email })
-    .select("+password")
-    .then((user) => {
-      if (user) {
-        user.comparePassword(password, (err, isMatch) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(INTERNAL_SERVER_ERROR)
-              .send({ message: "An error occurred on the server" });
-          }
-          if (isMatch) {
-            const token = isJWT.sign({ _id: user._id }, JWT_SECRET, {
-              expiresIn: "7d",
-            });
-            res.status(200).send({ message: "Login successful", token });
-          } else {
-            res.status(UNAUTHORIZED).send({ message: "Invalid credentials" });
-          }
-        });
-      } else {
-        res.status(NOT_FOUND).send({ message: "User not found" });
-      }
-    });
 };
-
-const token = isJWT.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
-
-/*
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
-    });
-};
-*/
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
@@ -101,25 +64,42 @@ const createUser = (req, res) => {
     });
 };
 
-/*
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
+const updateCurrentUser = (req, res) => {
+  const { name, avatar } = req.body;
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Document not found" });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-      return res
+      res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     });
 };
-*/
 
-module.exports = { getUsers, createUser, getUser, login };
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      res.status({ data: user });
+    })
+    .catch((err) => {
+      console.error(err);
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
+    });
+};
+
+module.exports = {
+  getUser,
+  login,
+  getCurrentUser,
+  updateCurrentUser,
+};
