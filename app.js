@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const indexRouter = require("./routes/index");
 const { createUser, login } = require("./controllers/users");
 const { JWT_SECRET } = require("./utils/config");
-const isJWT = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();

@@ -1,7 +1,5 @@
-const isJWT = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-
-import auth from "../middlewares/auth";
 
 const User = require("../models/user");
 
@@ -18,7 +16,7 @@ const login = (req, res) => {
 
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = isJWT.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
       res.status(200).send({ message: "Login successful", token });
@@ -49,7 +47,7 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   User.create({ name, avatar, email, password })
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -65,40 +63,49 @@ const createUser = (req, res) => {
 };
 
 const updateCurrentUser = (req, res) => {
+  const userId = req.user._id;
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { name, avatar },
     { new: true, runValidators: true }
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       console.error(err);
-      res
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      }
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     });
 };
 
 const getCurrentUser = (req, res) => {
-  User.findById(req.user._id)
+  const userId = req.user._id;
+
+  User.findById(userId)
     .then((user) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.status({ data: user });
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       console.error(err);
-      res
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      }
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     });
 };
 
 module.exports = {
-  getUser,
+  createUser,
   login,
   getCurrentUser,
   updateCurrentUser,
