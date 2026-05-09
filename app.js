@@ -1,10 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const indexRouter = require("./routes/index");
-const { createUser, login } = require("./controllers/users");
-const { JWT_SECRET } = require("./utils/config");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const indexRouter = require("./routes/index");
+const auth = require("./middlewares/auth");
+const { createUser, login } = require("./controllers/users");
 
 const app = express();
 app.use(cors());

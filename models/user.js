@@ -36,12 +36,15 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) {
+    return next();
+  }
 
   bcrypt.hash(this.password, 10).then((hash) => {
     this.password = hash;
-    next();
+    return next();
   });
+  return null;
 });
 
 userSchema.statics.findUserByCredentials = function (email, password) {
