@@ -16,10 +16,8 @@ const login = (req, res) => {
 
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: "7d",
-      });
-      res.status(200).send({ message: "Login successful", token });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET);
+      res.status(200).send({ token });
     })
     .catch((err) => {
       console.error(err);
@@ -44,10 +42,13 @@ const login = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, avatar, email, password } = req.body;
+  const { name, avatar, email } = req.body;
 
   User.create({ name, avatar, email, password })
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user) => {
+      delete user._doc.password;
+      res.status(201).send(user);
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -71,7 +72,8 @@ const updateCurrentUser = (req, res) => {
     { name, avatar },
     { new: true, runValidators: true }
   )
-    .then((user) => res.status(200).send({ data: user }))
+    .orFail()
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
@@ -91,7 +93,7 @@ const getCurrentUser = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      return res.status(200).send({ data: user });
+      return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);

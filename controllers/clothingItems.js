@@ -6,14 +6,10 @@ const {
 } = require("../utils/error");
 
 const createItem = (req, res) => {
-  //  console.log(req);
-  //  console.log(req.body);
-
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
-      //  console.log(item);
       res.send({ data: item });
     })
     .catch((err) => {
