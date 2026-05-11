@@ -42,12 +42,13 @@ const login = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, avatar, email } = req.body;
+  const { name, avatar, email, password } = req.body;
 
   User.create({ name, avatar, email, password })
     .then((user) => {
-      delete user._doc.password;
-      res.status(201).send(user);
+      const userObject = user.toObject();
+      delete userObject.password;
+      res.status(201).send(userObject);
     })
     .catch((err) => {
       console.error(err);
