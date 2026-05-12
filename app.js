@@ -4,6 +4,8 @@ const cors = require("cors");
 const indexRouter = require("./routes/index");
 const auth = require("./middlewares/auth");
 const { createUser, login } = require("./controllers/users");
+const userRoutes = require("./routes/users");
+const itemRoutes = require("./routes/clothingItems");
 
 const app = express();
 app.use(cors());
@@ -18,10 +20,10 @@ mongoose
   .catch(console.error);
 
 app.use(express.json());
-app.post("/signin", login);
-app.post("/signup", createUser);
-app.use(auth);
+app.use("/users", userRoutes);
+app.use("/items", itemRoutes);
 app.use("/", indexRouter);
+app.use(auth);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

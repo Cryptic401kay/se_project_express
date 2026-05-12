@@ -49,7 +49,16 @@ const deleteItem = (req, res) => {
       return ClothingItem.findByIdAndDelete(itemId);
     })
     .then(() => {
-      res.send({ message: "Item deleted successfully" });
+      res.status(200).send({ message: "Item deleted successfully" });
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
     });
 };
 

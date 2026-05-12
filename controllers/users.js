@@ -14,9 +14,17 @@ const {
 const login = (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET);
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
       res.status(200).send({ token });
     })
     .catch((err) => {
@@ -43,6 +51,16 @@ const login = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
+  const existingUser = User.findOne({ email });
+
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+  if (existingUser) {
+    return res.status(CONFLICT).send({ message: "User already exists" });
+  }
 
   User.create({ name, avatar, email, password })
     .then((user) => {
