@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const indexRouter = require("./routes/index");
 const auth = require("./middlewares/auth");
-const { createUser, login } = require("./controllers/users");
+
 const userRoutes = require("./routes/users");
 const itemRoutes = require("./routes/clothingItems");
 
