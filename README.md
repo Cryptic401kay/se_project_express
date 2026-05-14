@@ -2,6 +2,12 @@
 
 The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
 
+## Project Pitch Video
+
+Watch this video to see a detailed presentation of the internal backend code layout and its features.
+
+- [Deployment Link](https://www.loom.com/share/58285173226c42fc9ed175a6cf0e0b59)
+
 ## Technologies & Techniques Used
 
 - **Backend:** Node.js, Express.js
