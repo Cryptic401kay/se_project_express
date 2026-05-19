@@ -49,37 +49,37 @@ const login = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
-  const existingUser = User.findOne({ email });
 
   if (!email || !password) {
     return res
       .status(BAD_REQUEST)
       .send({ message: "Email and password are required" });
   }
-  if (existingUser) {
-    return res.status(CONFLICT).send({ message: "User already exists" });
-  }
 
-  User.create({ name, avatar, email, password })
-    .then((user) => {
-      const userObject = user.toObject();
-      delete userObject.password;
-      return res.status(201).send(userObject);
-    })
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-      if (err.name === "MongoError" && err.code === 11000) {
-        return res.status(CONFLICT).send({ message: "User already exists" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
-    });
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(CONFLICT).send({ message: "User already exists" });
+    }
+
+    const user = await User.create({ name, avatar, email, password });
+    const userObject = user.toObject();
+    delete userObject.password;
+    return res.status(201).send(userObject);
+  } catch (err) {
+    console.error(err);
+    if (err.name === "ValidationError") {
+      return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+    }
+    if (err.name === "MongoError" && err.code === 11000) {
+      return res.status(CONFLICT).send({ message: "User already exists" });
+    }
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .send({ message: "An error occurred on the server" });
+  }
 };
 
 const updateCurrentUser = (req, res) => {
