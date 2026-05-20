@@ -20,7 +20,7 @@ const login = (req, res) => {
       .send({ message: "Email and password are required" });
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -29,19 +29,10 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-      if (err.name === "MongoError" && err.code === 11000) {
-        return res.status(CONFLICT).send({ message: "User already exists" });
-      }
       if (err.name === "UnauthorizedError") {
         return res
           .status(UNAUTHORIZED)
           .send({ message: "Invalid credentials" });
-      }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
