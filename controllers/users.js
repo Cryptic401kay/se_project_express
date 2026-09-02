@@ -18,12 +18,12 @@ const login = (req, res, next) => {
     return;
   }
 
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      return res.status(200).send({ token });
+      res.status(200).send({ token });
     })
     .catch((err) => {
       if (err.name === "UnauthorizedError") {

@@ -13,34 +13,24 @@ class HttpError extends Error {
   }
 }
 
-class BadRequestError extends HttpError {
-  constructor(message) {
-    super(message, BAD_REQUEST);
-  }
+function BadRequestError(message) {
+  return new HttpError(message, BAD_REQUEST);
 }
 
-class UnauthorizedError extends HttpError {
-  constructor(message) {
-    super(message, UNAUTHORIZED);
-  }
+function UnauthorizedError(message) {
+  return new HttpError(message, UNAUTHORIZED);
 }
 
-class ForbiddenError extends HttpError {
-  constructor(message) {
-    super(message, FORBIDDEN);
-  }
+function ForbiddenError(message) {
+  return new HttpError(message, FORBIDDEN);
 }
 
-class NotFoundError extends HttpError {
-  constructor(message) {
-    super(message, NOT_FOUND);
-  }
+function NotFoundError(message) {
+  return new HttpError(message, NOT_FOUND);
 }
 
-class ConflictError extends HttpError {
-  constructor(message) {
-    super(message, CONFLICT);
-  }
+function ConflictError(message) {
+  return new HttpError(message, CONFLICT);
 }
 
 module.exports = {
