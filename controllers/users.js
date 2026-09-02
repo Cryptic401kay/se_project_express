@@ -54,14 +54,16 @@ const createUser = async (req, res, next) => {
     delete userObject.password;
     res.status(201).send(userObject);
   } catch (err) {
+    if (err.code === 11000) {
+      next(new ConflictError("User already exists"));
+      return;
+    }
+
     if (err.name === "ValidationError") {
       next(new BadRequestError("Invalid data"));
       return;
     }
-    if (err.name === "MongoError" && err.code === 11000) {
-      next(new ConflictError("User already exists"));
-      return;
-    }
+
     next(err);
   }
 };
