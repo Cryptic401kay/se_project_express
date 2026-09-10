@@ -8,6 +8,15 @@ Watch this video to see a detailed presentation of the internal backend code lay
 
 - [Deployment Link](https://www.loom.com/share/58285173226c42fc9ed175a6cf0e0b59)
 
+## Deployment
+
+This current webpage is deployed in Github Pages.
+
+- [Deployment Link](https://github.com/Cryptic401kay/se_project_react)
+- [Deployment Link](https://github.com/Cryptic401kay/se_project_express)
+
+--NOTE for preview in VSCode (if only running backend) run "npm run dev" then "npx json-server --watch db.json --port 3001"
+
 ## Technologies & Techniques Used
 
 - **Backend:** Node.js, Express.js
