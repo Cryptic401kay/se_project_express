@@ -17,12 +17,12 @@ const login = (req, res, next) => {
     return next(new BadRequestError("Email and password are required"));
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.status(200).send({ token });
+      return res.status(200).send({ token });
     })
     .catch((err) => {
       if (err.name === "UnauthorizedError") {
@@ -41,6 +41,7 @@ const createUser = async (req, res, next) => {
 
   try {
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return next(new ConflictError("User already exists"));
     }
@@ -48,7 +49,8 @@ const createUser = async (req, res, next) => {
     const user = await User.create({ name, avatar, email, password });
     const userObject = user.toObject();
     delete userObject.password;
-    res.status(201).send(userObject);
+
+    return res.status(201).send(userObject);
   } catch (err) {
     if (err.code === 11000) {
       return next(new ConflictError("User already exists"));
@@ -58,7 +60,7 @@ const createUser = async (req, res, next) => {
       return next(new BadRequestError("Invalid data"));
     }
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -66,7 +68,7 @@ const updateCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
 
-  User.findByIdAndUpdate(
+  return User.findByIdAndUpdate(
     userId,
     { name, avatar },
     { new: true, runValidators: true }
@@ -83,19 +85,19 @@ const updateCurrentUser = (req, res, next) => {
       if (err.name === "DocumentNotFoundError") {
         return next(new NotFoundError("User not found"));
       }
-      next(err);
+      return next(err);
     });
 };
 
 const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
 
-  User.findById(userId)
+  return User.findById(userId)
     .then((user) => {
       if (!user) {
         return next(new NotFoundError("User not found"));
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -104,7 +106,7 @@ const getCurrentUser = (req, res, next) => {
       if (err.name === "ValidationError") {
         return next(new BadRequestError("Invalid data"));
       }
-      next(err);
+      return next(err);
     });
 };
 
