@@ -8,14 +8,13 @@ const {
   ConflictError,
   NotFoundError,
   UnauthorizedError,
-} = require("../utils/error");
+} = require("../errors");
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    next(new BadRequestError("Email and password are required"));
-    return;
+    return next(new BadRequestError("Email and password are required"));
   }
 
   User.findUserByCredentials(email, password)
@@ -27,10 +26,9 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "UnauthorizedError") {
-        next(new UnauthorizedError("Invalid credentials"));
-        return;
+        return next(new UnauthorizedError("Invalid credentials"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -38,15 +36,13 @@ const createUser = async (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    next(new BadRequestError("Email and password are required"));
-    return;
+    return next(new BadRequestError("Email and password are required"));
   }
 
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      next(new ConflictError("User already exists"));
-      return;
+      return next(new ConflictError("User already exists"));
     }
 
     const user = await User.create({ name, avatar, email, password });
@@ -55,13 +51,11 @@ const createUser = async (req, res, next) => {
     res.status(201).send(userObject);
   } catch (err) {
     if (err.code === 11000) {
-      next(new ConflictError("User already exists"));
-      return;
+      return next(new ConflictError("User already exists"));
     }
 
     if (err.name === "ValidationError") {
-      next(new BadRequestError("Invalid data"));
-      return;
+      return next(new BadRequestError("Invalid data"));
     }
 
     next(err);
@@ -81,16 +75,13 @@ const updateCurrentUser = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError("Invalid user ID"));
-        return;
+        return next(new BadRequestError("Invalid user ID"));
       }
       if (err.name === "ValidationError") {
-        next(new BadRequestError("Invalid data"));
-        return;
+        return next(new BadRequestError("Invalid data"));
       }
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError("User not found"));
-        return;
+        return next(new NotFoundError("User not found"));
       }
       next(err);
     });
@@ -102,19 +93,16 @@ const getCurrentUser = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError("User not found"));
-        return;
+        return next(new NotFoundError("User not found"));
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError("Invalid user ID"));
-        return;
+        return next(new BadRequestError("Invalid user ID"));
       }
       if (err.name === "ValidationError") {
-        next(new BadRequestError("Invalid data"));
-        return;
+        return next(new BadRequestError("Invalid data"));
       }
       next(err);
     });
