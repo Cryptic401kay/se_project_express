@@ -12,6 +12,8 @@ Watch this video to see a detailed presentation of the internal backend code lay
 
 This current webpage is deployed in Github Pages.
 
+- [Deployment Link](https://cryptic-wtwr.minecraftnoob.com)
+
 - [Deployment Link](https://github.com/Cryptic401kay/se_project_react)
 - [Deployment Link](https://github.com/Cryptic401kay/se_project_express)
 
